@@ -609,17 +609,17 @@ def main():
                     
                     is_main = st.session_state.main_index == i
                     if st.button("⭐ PRINCIPALE" if is_main else "Sélectionner", key=f"btn_{i}",
-                                 type="primary" if is_main else "secondary", use_container_width=True):
+                                 type="primary" if is_main else "secondary", width='stretch'):
                         st.session_state.main_index = i
                         st.rerun()
                     
                     fmt = photo['format'].upper().lstrip('.')
-                    st.image(thumb, caption=f"{photo['name'][:10]}.. ({fmt})", use_container_width=True)
+                    st.image(thumb, caption=f"{photo['name'][:10]}.. ({fmt})", width='stretch')
             
             st.divider()
             can_gen = st.session_state.main_index is not None and len(st.session_state.photos) >= 2
             
-            if st.button("🎨 Générer", type="primary", disabled=not can_gen, use_container_width=True):
+            if st.button("🎨 Générer", type="primary", disabled=not can_gen, width='stretch'):
                 with st.spinner("Génération..."):
                     main_img = st.session_state.photos[st.session_state.main_index]['image']
                     others = [p['image'] for i, p in enumerate(st.session_state.photos) if i != st.session_state.main_index]
@@ -647,19 +647,19 @@ def main():
             result = st.session_state.result
             if transparent:
                 st.caption("🔲 Fond transparent")
-            st.image(result, use_container_width=True)
+            st.image(result, width='stretch')
             
             buf_png = io.BytesIO()
             result.save(buf_png, format='PNG', optimize=True)
             
             c1, c2 = st.columns(2)
             with c1:
-                st.download_button("💾 PNG", buf_png.getvalue(), f"photo_cloud_{layout}.png", "image/png", use_container_width=True)
+                st.download_button("💾 PNG", buf_png.getvalue(), f"photo_cloud_{layout}.png", "image/png", width='stretch')
             with c2:
                 if not transparent:
                     buf_jpg = io.BytesIO()
                     result.convert('RGB').save(buf_jpg, format='JPEG', quality=95)
-                    st.download_button("💾 JPEG", buf_jpg.getvalue(), f"photo_cloud_{layout}.jpg", "image/jpeg", use_container_width=True)
+                    st.download_button("💾 JPEG", buf_jpg.getvalue(), f"photo_cloud_{layout}.jpg", "image/jpeg", width='stretch')
             
             st.caption(f"📐 {result.width}×{result.height} | {layout}")
         else:
