@@ -16,6 +16,39 @@ import io
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFilter, ImageEnhance
 
+# =============================================================================
+# CORRECTION D'ORIENTATION EXIF
+# =============================================================================
+
+def fix_orientation(img: Image.Image) -> Image.Image:
+    """Corrige l'orientation de l'image selon les métadonnées EXIF."""
+    try:
+        exif = img.getexif()
+        if not exif:
+            return img
+        orientation = exif.get(274)  # 274 = Orientation tag
+        if orientation is None:
+            return img
+        if orientation == 2:
+            img = img.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
+        elif orientation == 3:
+            img = img.transpose(Image.Transpose.ROTATE_180)
+        elif orientation == 4:
+            img = img.transpose(Image.Transpose.FLIP_TOP_BOTTOM)
+        elif orientation == 5:
+            img = img.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
+            img = img.transpose(Image.Transpose.ROTATE_90)
+        elif orientation == 6:
+            img = img.transpose(Image.Transpose.ROTATE_270)
+        elif orientation == 7:
+            img = img.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
+            img = img.transpose(Image.Transpose.ROTATE_270)
+        elif orientation == 8:
+            img = img.transpose(Image.Transpose.ROTATE_90)
+        return img
+    except:
+        return img
+
 # Tentative d'import des bibliothèques optionnelles pour formats étendus
 HEIF_SUPPORT = False
 RAW_SUPPORT = False
@@ -119,8 +152,9 @@ def get_supported_formats_info():
 # =============================================================================
 
 def load_image_pillow(file_data: bytes) -> Image.Image:
-    """Charge une image avec Pillow."""
+    """Charge une image avec Pillow et corrige l'orientation EXIF."""
     img = Image.open(io.BytesIO(file_data))
+    img = fix_orientation(img)
     if img.mode not in ('RGB', 'RGBA'):
         img = img.convert('RGBA')
     return img
